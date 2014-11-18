@@ -6,9 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.zip.GZIPInputStream;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -23,17 +26,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 public class SimpleAndroidOCRActivity extends Activity
 {
-	public static final String PACKAGE_NAME = "com.phone.kashyap.mathsolver";
 	public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/SimpleAndroidOCR/";
-
-	// You should have the trained data file in assets folder
-	// You can get them at:
-	// http://code.google.com/p/tesseract-ocr/downloads/list
+	private static final int CROP_INTENT = 2;;
+	private static final int CAMERA_INTENT = 1;
 	public static final String lang = "eng";
 
 	private static final String TAG = "SimpleAndroidOCR.java";
@@ -42,6 +44,8 @@ public class SimpleAndroidOCRActivity extends Activity
 	protected EditText _field;
 	protected String _path;
 	protected boolean _taken;
+	private Uri outputFileURII;
+	private Bitmap _croppedImage;
 
 	protected static final String PHOTO_TAKEN = "photo_taken";
 
@@ -94,12 +98,11 @@ public class SimpleAndroidOCRActivity extends Activity
 
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.camera_surface);
+		setContentView(R.layout.fragment_main);
 
 		_field = (EditText) findViewById(R.id.field);
 		_button = (Button) findViewById(R.id.button);
 		_button.setOnClickListener(new ButtonClickHandler());
-
 		_path = DATA_PATH + "/ocr.jpg";
 	}
 
@@ -116,11 +119,10 @@ public class SimpleAndroidOCRActivity extends Activity
 	protected void startCameraActivity() {
 		File file = new File(_path);
 		Uri outputFileUri = Uri.fromFile(file);
-
+		outputFileURII = outputFileUri;
 		final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-
-		startActivityForResult(intent, 0);
+		startActivityForResult(intent, CAMERA_INTENT);
 	}
 
 	@Override
@@ -128,10 +130,28 @@ public class SimpleAndroidOCRActivity extends Activity
 
 		Log.i(TAG, "resultCode: " + resultCode);
 
-		if (resultCode == -1) {
-			onPhotoTaken();
-		} else {
-			Log.v(TAG, "User cancelled");
+		if(requestCode == CAMERA_INTENT)
+		{
+			if (resultCode == -1)
+			{
+				Log.d(TAG, "Picture taken, now cropping");
+				performCrop();
+			}
+			else
+				Log.v(TAG, "User cancelled from Camera");
+		}
+		if(requestCode == CROP_INTENT)
+		{
+			//get the returned data
+			Bundle extras = data.getExtras();
+			//get the cropped bitmap
+			_croppedImage = extras.getParcelable("data");
+			//retrieve a reference to the ImageView
+			ImageView picView = (ImageView)findViewById(R.id.picture);
+			//display the returned cropped image
+			picView.setImageBitmap(_croppedImage);
+			Log.d(TAG, "Image Cropped now processing");
+			onPhotoTaken(_croppedImage);
 		}
 	}
 
@@ -144,19 +164,18 @@ public class SimpleAndroidOCRActivity extends Activity
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		Log.i(TAG, "onRestoreInstanceState()");
 		if (savedInstanceState.getBoolean(SimpleAndroidOCRActivity.PHOTO_TAKEN)) {
-			onPhotoTaken();
+			onPhotoTaken(_croppedImage);
 		}
 	}
 
-	protected void onPhotoTaken() {
+	protected void onPhotoTaken(Bitmap croppedImage)
+	{
 		_taken = true;
-
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = 4;
+		//Bitmap bitmap = BitmapFactory.decodeFile(_path, options);
 
-		Bitmap bitmap = BitmapFactory.decodeFile(_path, options);
-
-		try {
+		/*try {
 			ExifInterface exif = new ExifInterface(_path);
 			int exifOrientation = exif.getAttributeInt(
 					ExifInterface.TAG_ORIENTATION,
@@ -193,22 +212,18 @@ public class SimpleAndroidOCRActivity extends Activity
 				// Rotating Bitmap
 				bitmap = Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, false);
 			}
-
 			// Convert to ARGB_8888, required by tess
 			bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
 
 		} catch (IOException e) {
 			Log.e(TAG, "Couldn't correct orientation: " + e.toString());
-		}
-
-		// _image.setImageBitmap( bitmap );
-
+		}*/
 		Log.v(TAG, "Before baseApi");
 
 		TessBaseAPI baseApi = new TessBaseAPI();
 		baseApi.setDebug(true);
 		baseApi.init(DATA_PATH, lang);
-		baseApi.setImage(bitmap);
+		baseApi.setImage(croppedImage);
 
 		String recognizedText = baseApi.getUTF8Text();
 
@@ -220,8 +235,9 @@ public class SimpleAndroidOCRActivity extends Activity
 
 		Log.v(TAG, "OCRED TEXT: " + recognizedText);
 
-		if ( lang.equalsIgnoreCase("eng") ) {
-			recognizedText = recognizedText.replaceAll("[^a-zA-Z0-9]+", " ");
+		if ( lang.equalsIgnoreCase("eng") )
+		{
+			//recognizedText = recognizedText.replaceAll("[^a-zA-Z0-9]+", " ");
 		}
 
 		recognizedText = recognizedText.trim();
@@ -234,6 +250,36 @@ public class SimpleAndroidOCRActivity extends Activity
 		// Cycle done.
 	}
 
-	// www.Gaut.am was here
-	// Thanks for reading!
+	private void performCrop()
+	{
+		try
+		{
+			//take care of exceptions
+			//call the standard crop action intent (the user device may not support it)
+			Intent cropIntent = new Intent("com.android.camera.action.CROP");
+			//indicate image type and Uri
+
+
+			cropIntent.setDataAndType(outputFileURII, "image/*");
+			//set crop properties
+			cropIntent.putExtra("crop", "true");
+			//indicate aspect of desired crop
+			cropIntent.putExtra("aspectX", 1);
+			cropIntent.putExtra("aspectY", 1);
+			//indicate output X and Y
+			cropIntent.putExtra("outputX", 256);
+			cropIntent.putExtra("outputY", 256);
+			//retrieve data on return
+			cropIntent.putExtra("return-data", true);
+			//start the activity - we handle returning in onActivityResult
+			startActivityForResult(cropIntent, CROP_INTENT);
+		}
+		//respond to users whose devices do not support the crop action
+		catch(ActivityNotFoundException anfe){
+			//display an error message
+			String errorMessage = "Whoops - your device doesn't support the crop action!";
+			Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+			toast.show();
+		}
+	}
 }

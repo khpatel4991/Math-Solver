@@ -16,4 +16,14 @@
         android:layout_height="wrap_content"
         android:hint="hint" />
 
+    <ImageView
+        android:id="@+id/picture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Image"
+        android:layout_margin="5dp"
+        android:background="@drawable/pic_border" />
+
+
+
 </LinearLayout>
