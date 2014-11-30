@@ -4,26 +4,24 @@
               android:layout_height="fill_parent"
               android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ca" />
+<Button
+    android:id="@+id/button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/retake" />
 
-    <EditText
-        android:id="@+id/field"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="hint" />
+<EditText
+    android:id="@+id/field"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="hint" />
 
-    <ImageView
-        android:id="@+id/picture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Image"
-        android:layout_margin="5dp"
-        android:background="@drawable/pic_border" />
-
-
-
+<ImageView
+    android:id="@+id/picture"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:contentDescription="Image"
+    android:layout_margin="5dp"
+    android:background="@drawable/pic_border" />
 </LinearLayout>
+
