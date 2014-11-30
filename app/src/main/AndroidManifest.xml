@@ -25,12 +25,32 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+
+
         </activity>
         <activity
             android:name=".CameraActivity"
             android:theme="@style/FullScreenTheme"
             android:label="@string/title_activity_start" >
         </activity>
+
+        <activity android:name=".HandleShareIntent"
+                  >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".TestActivity">
+        </activity>
+        <activity android:name="eu.janmuller.android.simplecropimage.CropImage">
+        </activity>
+
     </application>
 
 </manifest>

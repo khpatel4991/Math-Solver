@@ -22,8 +22,7 @@
         android:text="@string/use_camera"
         android:id="@+id/button_camera"
         android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="108dp"/>
+        android:layout_centerHorizontal="true"/>
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -32,7 +31,25 @@
         android:text="@string/use_existing"
         android:id="@+id/button_existing"
         android:layout_below="@+id/button_camera"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/button_crop"
+        android:layout_below="@+id/button_existing"
+        android:layout_alignLeft="@+id/button_camera"
+        android:layout_alignStart="@+id/button_camera"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_below="@+id/button_crop"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="62dp"/>
+        android:layout_marginTop="140dp"
+        android:contentDescription="Cropped"/>
 
 </RelativeLayout>

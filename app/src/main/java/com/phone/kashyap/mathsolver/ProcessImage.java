@@ -29,9 +29,10 @@ public class ProcessImage
 		_context = context;
 	}
 
+
 	public Intent getCropIntent(Uri outputFileUri)
 	{
-		Log.d(LOG_TAG, "performCrop()");
+		Log.d(LOG_TAG, "getCropIntent");
 		try
 		{
 			//take care of exceptions
@@ -40,9 +41,9 @@ public class ProcessImage
 			cropIntent.setDataAndType(outputFileUri, "image/*");
 			//set crop properties
 			cropIntent.putExtra("crop", "true");
-			cropIntent.putExtra("outputX", 256);
+			/*cropIntent.putExtra("outputX", 256);
 			cropIntent.putExtra("outputY", 256);
-			cropIntent.putExtra("return-data", true);
+			*/cropIntent.putExtra("return-data", true);
 			return cropIntent;
 		}
 		//respond to users whose devices do not support the crop action
@@ -54,7 +55,6 @@ public class ProcessImage
 
 	public String getTextFromImage(int requestCode ,Intent data)
 	{
-		//super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == CROP_INTENT)
 		{
 			if (data != null)
@@ -73,7 +73,7 @@ public class ProcessImage
 	}
 
 
-	private String getTextFromTess(Bitmap croppedImage)
+	public String getTextFromTess(Bitmap croppedImage)
 	{
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = 4;
