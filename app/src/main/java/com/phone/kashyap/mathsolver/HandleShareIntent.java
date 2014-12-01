@@ -67,7 +67,7 @@ public class HandleShareIntent extends Activity
 			Log.d(LOG_TAG, "onActivityResult, Result Code = " + String.valueOf(resultCode));
 			if(data != null)
 			{
-				new GetTextFromImageTask(this).execute((Bitmap) data.getExtras().getParcelable("data"));
+				new GetTextFromImageTask(this, null).execute((Bitmap) data.getExtras().getParcelable("data"));
 
 				Intent m = new Intent(this, MainActivity.class);
 				//m.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);

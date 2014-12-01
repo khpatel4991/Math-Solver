@@ -13,4 +13,8 @@
     <string name="use_camera">Use Camera</string>
     <string name="use_existing">Use Existing Picture</string>
 
+    <string name="equ_text">Equation you want to calculate</string>
+
+    <string name="calc_button">Calculate</string>
+
 </resources>

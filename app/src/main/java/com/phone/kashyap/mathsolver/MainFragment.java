@@ -2,6 +2,8 @@ package com.phone.kashyap.mathsolver;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -32,7 +35,11 @@ public class MainFragment extends Fragment
 	public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/MathSolver/";
 	private static final String CROP_ERROR = "Whoops - your device doesn't support the crop action!";
 	private Uri _outputFileUri;
+	private ProgressBar _progressBar;
 	private final ProcessImage _processImage = new ProcessImage(getActivity());
+
+	private SolverFragment solverFrag;
+
 	public MainFragment(){}
 
 	@Override
@@ -43,6 +50,8 @@ public class MainFragment extends Fragment
 		Button buttonCamera = (Button) rootView.findViewById(R.id.button_camera);
 		Button buttonExisting = (Button) rootView.findViewById(R.id.button_existing);
 		Button buttonCrop = (Button) rootView.findViewById(R.id.button_crop);
+		_progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+
 
 		buttonCamera.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -155,14 +164,22 @@ public class MainFragment extends Fragment
 			Log.d(LOG_TAG, "onActivityResult, Result Code = " + String.valueOf(resultCode));
 			if(data != null)
 			{
-
-				new GetTextFromImageTask(getActivity()).execute((Bitmap) data.getExtras().getParcelable("data"));
-
-				//String finalText = _processImage.getTextFromImage(requestCode, data);
-
-				//Toast.makeText(getActivity(), finalText, Toast.LENGTH_SHORT).show();
+				new GetTextFromImageTask(getActivity(), _progressBar).execute((Bitmap) data.getExtras().getParcelable("data"));
+				//move to new fragment
 			}
 		}
+	}
+
+	public void startSolverFragment(String finalText)
+	{
+		solverFrag = new SolverFragment();
+		Bundle solverBundle = new Bundle();
+		solverBundle.putString("equation", finalText);
+		solverFrag.setArguments(solverBundle);
+		FragmentManager fragmentManager = getFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+		fragmentTransaction.replace(R.id.container, solverFrag);
+		fragmentTransaction.commit();
 	}
 
 }
