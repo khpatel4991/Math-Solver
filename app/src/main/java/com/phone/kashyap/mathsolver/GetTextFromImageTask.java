@@ -1,12 +1,11 @@
 package com.phone.kashyap.mathsolver;
 
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 /**
  * Created by Kashyap on 11/30/2014.
@@ -14,15 +13,18 @@ import android.widget.Toast;
 public class GetTextFromImageTask extends AsyncTask<Bitmap, Void, String>
 {
 	private static final String LOG_TAG = GetTextFromImageTask.class.getSimpleName();
-	private Context _context;
+	private Activity _activity;
 	private ProcessImage _processImage;
 	private ProgressBar _progressBar;
+    private String _fromWhere;
+    private StartSolverFragment _startSolverFragment;
 
-	public GetTextFromImageTask(Context context, ProgressBar progressBar)
+	public GetTextFromImageTask(Activity activity, ProgressBar progressBar)
 	{
-		_context = context;
+		_activity = activity;
 		_progressBar = progressBar;
-		_processImage = new ProcessImage(_context);
+		_processImage = new ProcessImage(activity);
+        _startSolverFragment = (StartSolverFragment)_activity;
 	}
 
 	@Override
@@ -52,6 +54,7 @@ public class GetTextFromImageTask extends AsyncTask<Bitmap, Void, String>
 		super.onPostExecute(s);
 		if(_progressBar != null)
 			_progressBar.setVisibility(View.INVISIBLE);
-		Toast.makeText(_context, s, Toast.LENGTH_SHORT).show();
+        _startSolverFragment.startSolverFragmentMethod(s);
+		//Toast.makeText(_context, s, Toast.LENGTH_SHORT).show();
 	}
 }

@@ -1,17 +1,20 @@
 package com.phone.kashyap.mathsolver;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 /**
  * Created by Kashyap on 11/30/2014.
  */
-public class HandleShareIntent extends Activity
+public class HandleShareIntent extends Activity implements StartSolverFragment
 {
 	private static final String LOG_TAG = HandleShareIntent.class.getSimpleName();
 
@@ -21,11 +24,17 @@ public class HandleShareIntent extends Activity
 
 	private final ProcessImage _processImage = new ProcessImage(this);
 
+    private ProgressBar _progressBar;
+
+    SolverFragment _solverFrag;
+
 	@Override
 	protected void onCreate (Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		Log.d(LOG_TAG, "onCreate");
+        setContentView(R.layout.handle_intent_main);
+        _progressBar = (ProgressBar) findViewById(R.id.progressBar2);
 		// Get intent, action and MIME type
 		Intent intent = getIntent();
 		String action = intent.getAction();
@@ -43,7 +52,7 @@ public class HandleShareIntent extends Activity
 
 	void handleSendImage(Intent intent)
 	{
-		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+		Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 		if (imageUri != null)
 		{
 			Intent cropIntent = _processImage.getCropIntent(imageUri);
@@ -67,19 +76,31 @@ public class HandleShareIntent extends Activity
 			Log.d(LOG_TAG, "onActivityResult, Result Code = " + String.valueOf(resultCode));
 			if(data != null)
 			{
-				new GetTextFromImageTask(this, null).execute((Bitmap) data.getExtras().getParcelable("data"));
+				new GetTextFromImageTask(this, _progressBar).execute((Bitmap) data.getExtras().getParcelable("data"));
 
-				Intent m = new Intent(this, MainActivity.class);
+				//Intent m = new Intent(this, MainActivity.class);
 				//m.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
 				finish();
 				Log.d(LOG_TAG, "created intent");
-				startActivity(m);
+				//startActivity(m);
 			}
 		}
 
 
-		Log.d(LOG_TAG, "onAcivityResult");
+		Log.d(LOG_TAG, "onActivityResult");
 
 	}
+
+    public void startSolverFragmentMethod(String finalText)
+    {
+        _solverFrag = new SolverFragment();
+        Bundle solverBundle = new Bundle();
+        solverBundle.putString("equation", finalText);
+        _solverFrag.setArguments(solverBundle);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.container, _solverFrag);
+        fragmentTransaction.commit();
+    }
 }

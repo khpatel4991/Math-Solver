@@ -20,7 +20,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':libraries:tess-two')
     compile project(':libraries:simple-crop-image-lib')
+    compile project(':commons-codec-1.3')
+    compile project(':commons-logging-1.2')
+    compile project(':httpclient-4.0.1')
+    compile project(':httpcore-4.0.1')
+    compile project(':WolframAlpha-1.1')
 }

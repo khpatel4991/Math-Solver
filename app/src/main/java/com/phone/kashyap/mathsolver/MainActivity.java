@@ -1,6 +1,8 @@
 package com.phone.kashyap.mathsolver;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,7 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements StartSolverFragment
 {
 
 	private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -27,6 +29,8 @@ public class MainActivity extends Activity
 	private static final int CROP_INTENT = 2;
 
 	private final ProcessImage _processImage = new ProcessImage(this);
+
+    SolverFragment _solverFrag;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -104,6 +108,18 @@ public class MainActivity extends Activity
 		}
 	}
 
+
+    public void startSolverFragmentMethod(String finalText)
+    {
+        _solverFrag = new SolverFragment();
+        Bundle solverBundle = new Bundle();
+        solverBundle.putString("equation", finalText);
+        _solverFrag.setArguments(solverBundle);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.container, _solverFrag);
+        fragmentTransaction.commit();
+    }
 
 	/*void handleSendImage(Intent intent)
 	{

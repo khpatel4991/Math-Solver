@@ -2,8 +2,6 @@ package com.phone.kashyap.mathsolver;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -32,13 +30,11 @@ public class MainFragment extends Fragment
 	private static final int CROP_INTENT = 2;
 	private static final int CAMERA_INTENT = 1;
 	public static final int MEDIA_TYPE_IMAGE = 1;
-	public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/MathSolver/";
+	//public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/MathSolver/";
 	private static final String CROP_ERROR = "Whoops - your device doesn't support the crop action!";
 	private Uri _outputFileUri;
 	private ProgressBar _progressBar;
 	private final ProcessImage _processImage = new ProcessImage(getActivity());
-
-	private SolverFragment solverFrag;
 
 	public MainFragment(){}
 
@@ -168,18 +164,6 @@ public class MainFragment extends Fragment
 				//move to new fragment
 			}
 		}
-	}
-
-	public void startSolverFragment(String finalText)
-	{
-		solverFrag = new SolverFragment();
-		Bundle solverBundle = new Bundle();
-		solverBundle.putString("equation", finalText);
-		solverFrag.setArguments(solverBundle);
-		FragmentManager fragmentManager = getFragmentManager();
-		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-		fragmentTransaction.replace(R.id.container, solverFrag);
-		fragmentTransaction.commit();
 	}
 
 }
