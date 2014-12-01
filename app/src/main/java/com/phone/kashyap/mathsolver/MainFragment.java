@@ -121,8 +121,7 @@ public class MainFragment extends Fragment
 	}
 
 
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if(requestCode == CAMERA_INTENT)
 		{
