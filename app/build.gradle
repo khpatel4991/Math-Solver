@@ -4,6 +4,17 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
 
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+    }
+
     defaultConfig {
         applicationId "com.phone.kashyap.mathsolver"
         minSdkVersion 15
@@ -23,9 +34,9 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':libraries:tess-two')
     compile project(':libraries:simple-crop-image-lib')
-    compile project(':commons-codec-1.3')
-    compile project(':commons-logging-1.2')
-    compile project(':httpclient-4.0.1')
-    compile project(':httpcore-4.0.1')
-    compile project(':WolframAlpha-1.1')
+    compile project(':libraries:commons-codec-1.3')
+    compile project(':libraries:commons-logging-1.2')
+    compile project(':libraries:httpclient-4.0.1')
+    compile project(':libraries:httpcore-4.0.1')
+    compile project(':libraries:WolframAlpha-1.1')
 }

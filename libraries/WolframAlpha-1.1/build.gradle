@@ -1,0 +1,4 @@
+configurations.create("default")
+artifacts.add("default", file('WolframAlpha-1.1.jar'))
+dependencies {
+}
