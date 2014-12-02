@@ -1,6 +1,7 @@
 package com.phone.kashyap.mathsolver;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.wolfram.alpha.WAEngine;
@@ -17,131 +18,162 @@ import java.util.HashSet;
 /**
  * Created by Priya on 11/30/2014.
  */
-public class SolverTask extends AsyncTask<String, Void, String> {
+public class SolverTask extends AsyncTask<String, Void, String>
+{
 
-    private static String appid = "VYQ8QE-Y7AEURHGHE";
-    private static HashSet<String> podTitleStr = new HashSet<String>();
+	private static String appid = "VYQ8QE-Y7AEURHGHE";
+	private static HashSet<String> podTitleStr = new HashSet<String>();
 
-    private Activity _activity;
+	private Activity _activity;
 
-    public SolverTask(MainActivity _activity) {
-        onAttach(_activity);
-    }
+	private ProgressDialog _progressDialog;
 
-    public void onAttach(Activity activity) {
-        _activity = activity;
-    }
+	public SolverTask(MainActivity _activity)
+	{
+		onAttach(_activity);
+	}
 
-    public void onDetach() {
-        _activity = null;
-    }
+	public void onAttach(Activity activity)
+	{
+		_activity = activity;
+	}
 
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        if (_activity == null) {
-        }
-        else {
-            ((MainActivity) _activity)._solverFrag.showProgressBarWhileRetrieving();
-        }
-    }
+	public void onDetach()
+	{
+		_activity = null;
+	}
 
-    @Override
-    protected String doInBackground(String... params) {
-        StringBuilder queryResultStr = new StringBuilder("");
-        String[] podTitleArray = {"Input", "Exact result","Results", "Result", "Solutions", "Decimal approximation"};
+	@Override
+	protected void onPreExecute()
+	{
+		super.onPreExecute();
+		if(_activity != null)
+		{
+			_progressDialog = new ProgressDialog(_activity);
+			_progressDialog.setMessage("Working some Magic...");
+			_progressDialog.setCancelable(false);
+			_progressDialog.show();
+		}
+	}
 
-        podTitleStr.addAll(Arrays.asList(podTitleArray));
+	@Override
+	protected String doInBackground(String... params)
+	{
+		StringBuilder queryResultStr = new StringBuilder("");
+		String[] podTitleArray = {"Input", "Exact result", "Results", "Result", "Solutions", "Decimal approximation"};
 
-        String input = params[0];
-        WAEngine engine = new WAEngine();
+		podTitleStr.addAll(Arrays.asList(podTitleArray));
 
-        // These properties will be set in all the WAQuery objects created from this WAEngine.
-        engine.setAppID(appid);
-        engine.addFormat("plaintext");
-        engine.addPodState("Solution__Step-by-step solution");
-        engine.addPodState("Result__Step-by-step solution");
-        engine.addPodState("Solution__Approximate form"); // For single variable equation it gives decimal result
+		String input = params[0];
+		WAEngine engine = new WAEngine();
 
-        // Create the query.
-        WAQuery query = engine.createQuery();
+		// These properties will be set in all the WAQuery objects created from this WAEngine.
+		engine.setAppID(appid);
+		engine.addFormat("plaintext");
+		engine.addPodState("Solution__Step-by-step solution");
+		engine.addPodState("Result__Step-by-step solution");
+		engine.addPodState("Solution__Approximate form"); // For single variable equation it gives decimal result
 
-        // Set properties of the query.
-        query.setInput(input);
+		// Create the query.
+		WAQuery query = engine.createQuery();
 
-        try {
-            WAQueryResult queryResult = engine.performQuery(query);
+		// Set properties of the query.
+		query.setInput(input);
 
-            if (queryResult.isError()) {
-                queryResultStr.append("Query error\n\terror code: " + queryResult.getErrorCode()+"\n\terror message: " + queryResult.getErrorMessage());
-            } else if (!queryResult.isSuccess()) {
-                queryResultStr.append("Query was not understood; no results available.");
-            } else {
-                for (WAPod pod : queryResult.getPods()) {
-                    if (!pod.isError()) {
-                        if(podTitleStr.contains(pod.getTitle())){
-                            queryResultStr.append(pod.getTitle()+"\n------------\n");
+		try
+		{
+			WAQueryResult queryResult = engine.performQuery(query);
 
-                            for (WASubpod subpod : pod.getSubpods()) {
-                                if(!subpod.getTitle().equals("")){
-                                    queryResultStr.append("\n"+subpod.getTitle()+"\n------------\n");
-                                }
-                                for (Object element : subpod.getContents()) {
-                                    if (element instanceof WAPlainText) {
-                                        if(subpod.getTitle().equals("Possible intermediate steps")){
-                                            StringBuilder temp = new StringBuilder(((WAPlainText) element).getText());
+			if (queryResult.isError())
+			{
+				queryResultStr.append("Query error\n\terror code: " + queryResult.getErrorCode() + "\n\terror message: " + queryResult.getErrorMessage());
+			} else if (!queryResult.isSuccess())
+			{
+				queryResultStr.append("Query was not understood; no results available.");
+			} else
+			{
+				for (WAPod pod : queryResult.getPods())
+				{
+					if (!pod.isError())
+					{
+						if (podTitleStr.contains(pod.getTitle()))
+						{
+							queryResultStr.append(pod.getTitle() + "\n------------\n");
 
-                                            String[] stepsInQuery = (temp.toString()).split("\n");
+							for (WASubpod subpod : pod.getSubpods())
+							{
+								if (!subpod.getTitle().equals(""))
+								{
+									queryResultStr.append("\n" + subpod.getTitle() + "\n------------\n");
+								}
+								for (Object element : subpod.getContents())
+								{
+									if (element instanceof WAPlainText)
+									{
+										if (subpod.getTitle().equals("Possible intermediate steps"))
+										{
+											StringBuilder temp = new StringBuilder(((WAPlainText) element).getText());
 
-                                            for(int i =0; i<stepsInQuery.length; i++){
-                                                int j = stepsInQuery[i].indexOf("|");
-                                                int k = stepsInQuery[i].indexOf("Answer");
-                                                if(stepsInQuery[i].contains(":"))
-                                                {
-                                                    stepsInQuery[i] = "\n"+stepsInQuery[i];
-                                                }
+											String[] stepsInQuery = (temp.toString()).split("\n");
 
-                                                if(j == -1 && !stepsInQuery[i].equals("")){
-                                                    queryResultStr.append(stepsInQuery[i]+"\n");
-                                                }else if(k != -1){
-                                                    String remPipe = stepsInQuery[i].replace("|", "");
-                                                    queryResultStr.append(remPipe);
-                                                    i++;
-                                                    remPipe = stepsInQuery[i].replace("|", "");
-                                                    queryResultStr.append(remPipe);
-                                                }
-                                            }
-                                            queryResultStr.append("\n");
-                                        }else{
-                                            if(pod.getTitle().equals("Decimal approximation")){
-                                                String resFloatStr = ((WAPlainText) element).getText();
-                                                resFloatStr = (resFloatStr.replace("...","")).trim();
-                                                float resFloat = Float.parseFloat(resFloatStr);
-                                                queryResultStr.append(resFloat+"\n");
-                                            }else{
-                                                queryResultStr.append(((WAPlainText) element).getText()+"\n");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            queryResultStr.append("\n");
-                        }
-                    }
-                }
-            }
-        } catch (WAException e) {
-            e.printStackTrace();
-        }
+											for (int i = 0; i < stepsInQuery.length; i++)
+											{
+												int j = stepsInQuery[i].indexOf("|");
+												int k = stepsInQuery[i].indexOf("Answer");
+												if (stepsInQuery[i].contains(":"))
+												{
+													stepsInQuery[i] = "\n" + stepsInQuery[i];
+												}
 
-        return queryResultStr.toString();
-    }
+												if (j == -1 && !stepsInQuery[i].equals(""))
+												{
+													queryResultStr.append(stepsInQuery[i] + "\n");
+												} else if (k != -1)
+												{
+													String remPipe = stepsInQuery[i].replace("|", "");
+													queryResultStr.append(remPipe);
+													i++;
+													remPipe = stepsInQuery[i].replace("|", "");
+													queryResultStr.append(remPipe);
+												}
+											}
+											queryResultStr.append("\n");
+										} else
+										{
+											if (pod.getTitle().equals("Decimal approximation"))
+											{
+												String resFloatStr = ((WAPlainText) element).getText();
+												resFloatStr = (resFloatStr.replace("...", "")).trim();
+												float resFloat = Float.parseFloat(resFloatStr);
+												queryResultStr.append(resFloat + "\n");
+											} else
+											{
+												queryResultStr.append(((WAPlainText) element).getText() + "\n");
+											}
+										}
+									}
+								}
+							}
+							queryResultStr.append("\n");
+						}
+					}
+				}
+			}
+		} catch (WAException e)
+		{
+			e.printStackTrace();
+		}
 
-    @Override
-    protected void onPostExecute(String result) {
-        if(_activity == null) {
-        }else{
-            ((MainActivity)_activity)._solverFrag.hideProgressBarAfterRetrieving(result);
-        }
-    }
+		return queryResultStr.toString();
+	}
+
+	@Override
+	protected void onPostExecute(String result)
+	{
+		if (_activity != null)
+		{
+			if (_progressDialog != null) _progressDialog.dismiss();
+			((MainActivity)_activity)._solverFrag.showResult(result);
+		}
+	}
 }

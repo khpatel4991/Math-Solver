@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -30,24 +29,26 @@ public class MainFragment extends Fragment
 	private static final int CROP_INTENT = 2;
 	private static final int CAMERA_INTENT = 1;
 	public static final int MEDIA_TYPE_IMAGE = 1;
-	//public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/MathSolver/";
 	private static final String CROP_ERROR = "Whoops - your device doesn't support the crop action!";
 	private Uri _outputFileUri;
-	private ProgressBar _progressBar;
 	private final ProcessImage _processImage = new ProcessImage(getActivity());
 
 	public MainFragment(){}
 
 	@Override
+	public void onAttach(Activity activity)
+	{
+		super.onAttach(activity);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
+		handleShareIntent(getArguments());
 		View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
 		Button buttonCamera = (Button) rootView.findViewById(R.id.button_camera);
 		Button buttonExisting = (Button) rootView.findViewById(R.id.button_existing);
 		Button buttonCrop = (Button) rootView.findViewById(R.id.button_crop);
-		_progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
-
 
 		buttonCamera.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -121,8 +122,22 @@ public class MainFragment extends Fragment
 	}
 
 
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	private void handleShareIntent(Bundle args)
+	{
+		Log.d(LOG_TAG, "coming from share");
+		if(args != null && args.containsKey("imageUri"))
+		{
+			Log.d(LOG_TAG, "Args not empty");
+			_outputFileUri = Uri.parse(args.getString("imageUri"));
+			args.remove("imageUri");
+			Intent cropIntent = _processImage.getCropIntent(_outputFileUri);
+			if (cropIntent != null) startActivityForResult(cropIntent, CROP_INTENT);
+			else Toast.makeText(getActivity(), CROP_ERROR, Toast.LENGTH_SHORT).show();
+		}
+	}
 
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
 		if(requestCode == CAMERA_INTENT)
 		{
 			Log.d(LOG_TAG, "Camera IntentResult");
@@ -158,10 +173,7 @@ public class MainFragment extends Fragment
 		{
 			Log.d(LOG_TAG, "onActivityResult, Result Code = " + String.valueOf(resultCode));
 			if(data != null)
-			{
-				new GetTextFromImageTask(getActivity(), _progressBar).execute((Bitmap) data.getExtras().getParcelable("data"));
-				//move to new fragment
-			}
+				new GetTextFromImageTask(getActivity()).execute((Bitmap) data.getExtras().getParcelable("data"));
 		}
 	}
 
