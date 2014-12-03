@@ -2,19 +2,16 @@
 <resources>
 
     <string name="app_name">Math Solver</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_image_overwrite">Overwrite Cropped Image</string>
     <string name="capture_image">Snap</string>
     <string name="title_activity_image_preview">ImagePreview</string>
     <string name="hello_world">Hello world!</string>
     <string name="retake">Re-Take</string>
     <string name="title_activity_start">StartActivity</string>
-
     <string name="description">Welcome to our app. Take an image of an equation, get its detailed solution</string>
     <string name="use_camera">Use Camera</string>
     <string name="use_existing">Use Existing Picture</string>
-
     <string name="equ_text">Equation you want to calculate</string>
-
     <string name="calc_button">Calculate</string>
 
 </resources>

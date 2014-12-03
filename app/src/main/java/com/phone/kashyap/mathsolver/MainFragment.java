@@ -124,7 +124,6 @@ public class MainFragment extends Fragment
 
 	private void handleShareIntent(Bundle args)
 	{
-		Log.d(LOG_TAG, "coming from share");
 		if(args != null && args.containsKey("imageUri"))
 		{
 			Log.d(LOG_TAG, "Args not empty");

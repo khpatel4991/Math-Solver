@@ -29,7 +29,7 @@ public class GetTextFromImageTask extends AsyncTask<Bitmap, Void, String>
 	protected void onPreExecute()
 	{
 		super.onPreExecute();
-		_progressDialog.setMessage("Recognizing Text...");
+		_progressDialog.setMessage("Recognizing Equation...");
 		_progressDialog.setCancelable(false);
 		_progressDialog.show();
 	}

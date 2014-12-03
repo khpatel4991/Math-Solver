@@ -36,7 +36,7 @@ public class MainActivity extends Activity implements StartSolverFragment
 		MainFragment mainFragment = new MainFragment();
 		if (isComingFromShareIntentHandler())
 		{
-			Log.d(LOG_TAG, "Setting up bundle with uristring = " + this.getIntent().getExtras().getString("imageUri"));
+			Log.d(LOG_TAG, "Setting up bundle with uri string = " + this.getIntent().getExtras().getString("imageUri"));
 			Bundle args = new Bundle();
 			args.putString("imageUri", this.getIntent().getExtras().getString("imageUri"));
 			mainFragment.setArguments(args);
@@ -98,6 +98,7 @@ public class MainActivity extends Activity implements StartSolverFragment
 			}
 		}
 	}
+
 
 	private boolean isComingFromShareIntentHandler()
 	{
