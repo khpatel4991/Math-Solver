@@ -152,10 +152,8 @@ public class SolverFragment extends Fragment
 		final String subTitle = "SUBTITLE";
 		final String para = "PARA";
 		_equation.setEnabled(true);
-		Log.d(LOG_TAG, "in populating");
 		if (values != null)
 		{
-			Log.d(LOG_TAG, "values not null");
 			if (oldTitle.equals(values.get(title)))
 			{
 				if (values.containsKey(subTitle))
@@ -180,10 +178,8 @@ public class SolverFragment extends Fragment
 
 	public void addTitleToTable(String title)
 	{
-		//static int i = 0;
 		if (!title.isEmpty())
 		{
-			Log.d(LOG_TAG, "Title in add title to table = " + title);
 			TableRow tr = new TableRow(getActivity());
 			TextView titleTextView = new TextView(getActivity());
 			titleTextView.setText(title);
@@ -222,6 +218,11 @@ public class SolverFragment extends Fragment
 			tr.addView(paraTextView, new TableRow.LayoutParams());
 			_tableResultLayout.addView(tr, new TableLayout.LayoutParams());
 		}
+	}
+
+	public void afterReturnFromAsyncTask()
+	{
+		_equation.setEnabled(true);
 	}
 
 	@Override

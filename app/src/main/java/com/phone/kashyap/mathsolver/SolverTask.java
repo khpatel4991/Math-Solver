@@ -49,7 +49,7 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 	protected void onPreExecute()
 	{
 		super.onPreExecute();
-		if(_activity != null)
+		if (_activity != null)
 		{
 			_progressDialog = new ProgressDialog(_activity);
 			_progressDialog.setMessage("Working some Magic...");
@@ -82,115 +82,106 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 		// Set properties of the query.
 		query.setInput(input);
 
- try {
-            WAQueryResult queryResult = engine.performQuery(query);
+		try {
+			WAQueryResult queryResult = engine.performQuery(query);
 
-            if (queryResult.isError()) {
-                queryResultStr.append("Query error\n\terror code: " + queryResult.getErrorCode()+"\n\terror message: " + queryResult.getErrorMessage());
-            } else if (!queryResult.isSuccess()) {
-                queryResultStr.append("Query was not understood; no results available.");
-            } else {
-                final String title = "TITLE";
-                final String subTitle = "SUBTITLE";
-                final String para = "PARA";
-                HashMap<String, String> resultMap;
-                for (WAPod pod : queryResult.getPods()) {
-                    //String title = null, subTitle = null, para = null;
-                    resultMap = new HashMap<String, String>();
-                    if (!pod.isError()) {
-                        if(podTitleStr.contains(pod.getTitle())){
-                            queryResultStr.append(pod.getTitle()+"\n------------\n");
-                            //title = pod.getTitle();
-                            resultMap.put(title, pod.getTitle());
+			if (queryResult.isError()) {
+				queryResultStr.append("Query error\n\terror code: " + queryResult.getErrorCode()+"\n\terror message: " + queryResult.getErrorMessage());
+			} else if (!queryResult.isSuccess()) {
+				queryResultStr.append("Query was not understood; no results available.");
+			} else {
+				final String title = "TITLE";
+				final String subTitle = "SUBTITLE";
+				final String para = "PARA";
+				HashMap<String, String> resultMap;
+				for (WAPod pod : queryResult.getPods()) {
+					resultMap = new HashMap<>();
+					if (!pod.isError()) {
+						if(podTitleStr.contains(pod.getTitle())){
+							queryResultStr.append(pod.getTitle()+"\n------------\n");
+							resultMap.put(title, pod.getTitle());
 
-                            for (WASubpod subpod : pod.getSubpods()) {
-                                if(!subpod.getTitle().equals("")){
-                                    queryResultStr.append("\n"+subpod.getTitle()+"\n------------\n");
-                                    //subTitle = subpod.getTitle();
-                                    resultMap.put(subTitle, subpod.getTitle());
-                                }
-                                for (Object element : subpod.getContents()) {
-                                    if (element instanceof WAPlainText) {
-                                        if(subpod.getTitle().equals("Possible intermediate steps")){
-                                            StringBuilder temp = new StringBuilder(((WAPlainText) element).getText());
+							for (WASubpod subpod : pod.getSubpods()) {
+								if(!subpod.getTitle().equals("")){
+									queryResultStr.append("\n"+subpod.getTitle()+"\n------------\n");
+									resultMap.put(subTitle, subpod.getTitle());
+								}
+								for (Object element : subpod.getContents()) {
+									if (element instanceof WAPlainText) {
+										if(subpod.getTitle().equals("Possible intermediate steps")){
+											StringBuilder temp = new StringBuilder(((WAPlainText) element).getText());
 
-                                            StringBuilder paraMatter = new StringBuilder("");
+											StringBuilder paraMatter = new StringBuilder("");
 
-                                            String[] stepsInQuery = (temp.toString()).split("\n");
+											String[] stepsInQuery = (temp.toString()).split("\n");
 
-                                            for(int i =0; i<stepsInQuery.length; i++){
-                                                int j = stepsInQuery[i].indexOf("|");
-                                                int k = stepsInQuery[i].indexOf("Answer");
-                                                if(stepsInQuery[i].contains(":"))
-                                                {
-                                                    stepsInQuery[i] = "\n"+stepsInQuery[i];
-                                                }
+											for(int i =0; i<stepsInQuery.length; i++){
+												int j = stepsInQuery[i].indexOf("|");
+												int k = stepsInQuery[i].indexOf("Answer");
+												if(stepsInQuery[i].contains(":"))
+												{
+													stepsInQuery[i] = "\n"+stepsInQuery[i];
+												}
 
-                                                if(j == -1 && !stepsInQuery[i].equals("")){
-                                                    //queryResultStr.append(stepsInQuery[i]+"\n");
-                                                    paraMatter.append(stepsInQuery[i]+"\n");
-                                                }else if(k != -1){
-                                                    for(int l=i; l<stepsInQuery.length; l++) {
-                                                        String remPipe = stepsInQuery[i].replace("|", "");
-                                                        //queryResultStr.append(remPipe);
-                                                        paraMatter.append(remPipe.trim()+"\n");
-                                                        //i++;
-                                                        //remPipe = stepsInQuery[i].replace("|", "");
-                                                        //queryResultStr.append(remPipe);
-                                                        //paraMatter.append(remPipe);
-                                                    }
-                                                }
-                                            }
-                                            //queryResultStr.append("\n");
-                                            resultMap.put(para, paraMatter.toString());
-                                            queryResultStr.append(paraMatter);
-                                            queryResultStr.append("\n");
-                                        }else{
-                                            if(pod.getTitle().equals("Decimal approximation")){
-                                                String resFloatStr = ((WAPlainText) element).getText();
-                                                resFloatStr = (resFloatStr.replace("...","")).trim();
-                                                float resFloat = Float.parseFloat(resFloatStr);
-                                                queryResultStr.append(resFloat+"\n");
-                                                resultMap.put(para, Float.toString(resFloat)+"\n");
-                                            }else{
-                                                queryResultStr.append(((WAPlainText) element).getText());
-                                                resultMap.put(para, ((WAPlainText) element).getText());
-                                            }
-                                        }
-                                    }
-                                }
-                                publishProgress(resultMap);
-                            }
-                            queryResultStr.append("\n");
-                        }
-                    }
-                }
-            }
-        } catch (WAException e) {
-            e.printStackTrace();
-        }
+												if(j == -1 && !stepsInQuery[i].equals("")){
+													paraMatter.append(stepsInQuery[i]+"\n");
+												}else if(k != -1){
+													paraMatter.append("\n");
+													for(int l=i; l<stepsInQuery.length; l++) {
+														String remPipe = stepsInQuery[l].replace("|", "");
+														paraMatter.append(remPipe.trim()+"\n");
+													}
+												}
+											}
+											resultMap.put(para, paraMatter.toString());
+											queryResultStr.append(paraMatter);
+											queryResultStr.append("\n");
+										}else{
+											if(pod.getTitle().equals("Decimal approximation")){
+												String resFloatStr = ((WAPlainText) element).getText();
+												resFloatStr = (resFloatStr.replace("...","")).trim();
+												float resFloat = Float.parseFloat(resFloatStr);
+												queryResultStr.append(resFloat+"\n");
+												resultMap.put(para, Float.toString(resFloat));
+											}else{
+												queryResultStr.append(((WAPlainText) element).getText());
+												resultMap.put(para, ((WAPlainText) element).getText());
+											}
+										}
+									}
+								}
+							}
+							publishProgress(resultMap);
+							queryResultStr.append("\n");
+						}
+					}
+				}
+			}
+		} catch (WAException e) {
+			e.printStackTrace();
+		}
 
 		return queryResultStr.toString();
 	}
 
 	@Override
-    protected void onProgressUpdate(HashMap<String, String>... values)
+	protected void onProgressUpdate(HashMap<String, String>... values)
 	{
-        super.onProgressUpdate(values);
+		super.onProgressUpdate(values);
 
-        if(_activity != null)
+		if (_activity != null)
 		{
-            if(values != null && values.length > 0)
+			if (values != null && values.length > 0)
 			{
-				//((MainActivity) _activity)._solverFrag.addRow(values.toString());
-				//((MainActivity) _activity)._solverFrag.addRow2("HAHA");
-				Log.d(LOG_TAG, values[0].get("TITLE"));
+				Object[] objects = values[0].values().toArray();
+				for(int i =0; i < objects.length;i++)
+				{
+					Log.d("QueryMap", objects[i].toString());
+				}
 				((MainActivity) _activity)._solverFrag.populatingTextView(values[0]);
 			}
-			/*else
-				((MainActivity) _activity)._solverFrag.populatingTextView(null);*/
-        }
-    }
+		}
+	}
 
 	@Override
 	protected void onPostExecute(String result)
@@ -198,7 +189,8 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 		if (_activity != null)
 		{
 			if (_progressDialog != null) _progressDialog.dismiss();
-			//((MainActivity)_activity)._solverFrag.addRow("jkdfkjsdf");
+
+			((MainActivity) _activity)._solverFrag.afterReturnFromAsyncTask();
 		}
 	}
 }
