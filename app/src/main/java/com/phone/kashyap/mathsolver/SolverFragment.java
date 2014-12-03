@@ -44,7 +44,7 @@ public class SolverFragment extends Fragment
 	@Override
 	public void onAttach(Activity activity)
 	{
-		Log.i("PP-DF", "on Attach");
+		Log.i(LOG_TAG, "on Attach");
 		super.onAttach(activity);
 		_activity = (MainActivity) activity;
 		if (_solverTask != null)
@@ -108,11 +108,13 @@ public class SolverFragment extends Fragment
 				{
 					if (equ != null && equ.length() > 0)
 					{
+						_tableResultLayout.removeAllViews();
 						_solverTask = new SolverTask(_activity);
 						_equation.setEnabled(false);
 						_calcButton.setEnabled(false);
 						_solverTask.execute(equ);
-					} else addTitleToTable("No Equation Found !");
+					}
+					else addTitleToTable("No Equation Found !");
 				}
 			}
 		});
@@ -162,7 +164,8 @@ public class SolverFragment extends Fragment
 					addSubTitleToTable(values.get(subTitle));
 				}
 				addParaToTable(values.get(para));
-			} else
+			}
+			else
 			{
 				addTitleToTable(values.get(title));
 				if (values.containsKey(subTitle))
@@ -221,17 +224,6 @@ public class SolverFragment extends Fragment
 		}
 	}
 
-
-	public void showResult(String result)
-	{
-		if (_solverTask != null)
-		{
-			//_resultView.setText(result);
-			_calcButton.setEnabled(false);
-			_equation.setEnabled(true);
-		}
-	}
-
 	@Override
 	public void onDetach()
 	{
@@ -241,5 +233,4 @@ public class SolverFragment extends Fragment
 			_solverTask.onDetach();
 		}
 	}
-
 }

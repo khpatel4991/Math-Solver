@@ -22,7 +22,7 @@ import java.util.HashSet;
  */
 public class SolverTask extends AsyncTask<String, HashMap<String, String>, String>
 {
-
+	private static final String LOG_TAG = SolverTask.class.getSimpleName();
 	private static String appid = "VYQ8QE-Y7AEURHGHE";
 	private static HashSet<String> podTitleStr = new HashSet<String>();
 
@@ -184,11 +184,11 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 			{
 				//((MainActivity) _activity)._solverFrag.addRow(values.toString());
 				//((MainActivity) _activity)._solverFrag.addRow2("HAHA");
-				Log.d("SolverTask", values[0].get("TITLE"));
+				Log.d(LOG_TAG, values[0].get("TITLE"));
 				((MainActivity) _activity)._solverFrag.populatingTextView(values[0]);
 			}
-			else
-				((MainActivity) _activity)._solverFrag.populatingTextView(null);
+			/*else
+				((MainActivity) _activity)._solverFrag.populatingTextView(null);*/
         }
     }
 
