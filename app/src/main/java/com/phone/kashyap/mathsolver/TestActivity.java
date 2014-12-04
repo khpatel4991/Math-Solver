@@ -24,7 +24,7 @@ import eu.janmuller.android.simplecropimage.CropImage;
 public class TestActivity extends Activity
 {
 
-	public static final String TAG = "TestActivity";
+	public static final String LOG_TAG = TestActivity.class.getSimpleName();
 
 	public static final String TEMP_PHOTO_FILE_NAME = "temp_photo.jpg";
 
@@ -89,18 +89,15 @@ public class TestActivity extends Activity
 				mImageCaptureUri = Uri.fromFile(mFileTemp);
 			} else
 			{
-				/*
-	        	 * The solution is taken from here: http://stackoverflow.com/questions/10042695/how-to-get-camera-result-as-a-uri-in-data-folder
-	        	 */
 				mImageCaptureUri = InternalStorageContentProvider.CONTENT_URI;
 			}
 			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
 			intent.putExtra("return-data", true);
 			startActivityForResult(intent, REQUEST_CODE_TAKE_PICTURE);
-		} catch (ActivityNotFoundException e)
+		}
+		catch (ActivityNotFoundException e)
 		{
-
-			Log.d(TAG, "cannot take picture", e);
+			Log.d(LOG_TAG, "cannot take picture", e);
 		}
 	}
 
@@ -116,38 +113,22 @@ public class TestActivity extends Activity
 	{
 
 		Intent intent = new Intent(this, CropImage.class);
+		Log.d(LOG_TAG, "Path in Test: " + mFileTemp.getPath());
 		intent.putExtra(CropImage.IMAGE_PATH, mFileTemp.getPath());
 		intent.putExtra(CropImage.SCALE, true);
 
-		intent.putExtra(CropImage.ASPECT_X, 16);
-		intent.putExtra(CropImage.ASPECT_Y, 9);
+		intent.putExtra(CropImage.ASPECT_X, 3);
+		intent.putExtra(CropImage.ASPECT_Y, 1);
 
 		startActivityForResult(intent, REQUEST_CODE_CROP_IMAGE);
 	}
-
-	private Intent startCropImage2()
-	{
-
-		Intent intent = new Intent(this, CropImage.class);
-		intent.putExtra(CropImage.IMAGE_PATH, mFileTemp.getPath());
-		intent.putExtra(CropImage.SCALE, true);
-
-		intent.putExtra(CropImage.ASPECT_X, 16);
-		intent.putExtra(CropImage.ASPECT_Y, 9);
-		return intent;
-		//startActivityForResult(intent, REQUEST_CODE_CROP_IMAGE);
-	}
-
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 
 		if (resultCode != RESULT_OK)
-		{
-
 			return;
-		}
 
 		Bitmap bitmap;
 
@@ -158,7 +139,6 @@ public class TestActivity extends Activity
 
 				try
 				{
-
 					InputStream inputStream = getContentResolver().openInputStream(data.getData());
 					FileOutputStream fileOutputStream = new FileOutputStream(mFileTemp);
 					copyStream(inputStream, fileOutputStream);
@@ -170,7 +150,7 @@ public class TestActivity extends Activity
 				} catch (Exception e)
 				{
 
-					Log.e(TAG, "Error while creating temp file", e);
+					Log.e(LOG_TAG, "Error while creating temp file", e);
 				}
 
 				break;

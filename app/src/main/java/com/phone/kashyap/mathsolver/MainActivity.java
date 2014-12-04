@@ -116,6 +116,8 @@ public class MainActivity extends Activity implements StartSolverFragment
         Bundle solverBundle = new Bundle();
         solverBundle.putString("equation", finalText);
         _solverFrag.setArguments(solverBundle);
-		getFragmentManager().beginTransaction().replace(R.id.container, _solverFrag).addToBackStack(null).commit();
+		getFragmentManager().beginTransaction().setCustomAnimations(
+				R.animator.card_flip_right_in, R.animator.card_flip_right_out,
+				R.animator.card_flip_left_in, R.animator.card_flip_left_out).replace(R.id.container, _solverFrag).addToBackStack(null).commit();
     }
 }

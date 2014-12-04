@@ -19,9 +19,11 @@ public class ProcessImage
 {
 	private static final String LOG_TAG = ProcessImage.class.getSimpleName();
 	private Context _context;
-	public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/MathSolver/";
+	private static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/MathSolver/";
+
 	private static final String lang = "eng";
 	private static final int CROP_INTENT = 2;
+	private static final int ACCEPTABLE_CONFIDENCE_LEVEL = 71;
 	private Bitmap _croppedImage;
 
 	public ProcessImage(Context context)
@@ -35,15 +37,14 @@ public class ProcessImage
 		Log.d(LOG_TAG, "getCropIntent");
 		try
 		{
-			//take care of exceptions
-			//call the standard crop action intent (the user device may not support it)
+
 			Intent cropIntent = new Intent("com.android.camera.action.CROP");
 			cropIntent.setDataAndType(outputFileUri, "image/*");
 			//set crop properties
-			cropIntent.putExtra("crop", "true");
-			/*cropIntent.putExtra("outputX", 256);
-			cropIntent.putExtra("outputY", 256);
-			*/cropIntent.putExtra("return-data", true);
+			cropIntent.putExtra("crop", "false");
+			cropIntent.putExtra("aspectX", 0);
+			cropIntent.putExtra("aspectY", 0);
+			cropIntent.putExtra("return-data", true);
 			return cropIntent;
 		}
 		//respond to users whose devices do not support the crop action
@@ -59,15 +60,14 @@ public class ProcessImage
 		{
 			if (data != null)
 			{
-				Log.d(LOG_TAG, "Data YES");
+				Log.d(LOG_TAG, "Cropped Image Received");
 				//get the returned data
 				Bundle extras = data.getExtras();
 				//get the cropped bitmap
 				_croppedImage = extras.getParcelable("data");
-				Log.d(LOG_TAG, "Image Cropped now processing");
 				return getTextFromTess(_croppedImage);
 			}
-			else Log.d(LOG_TAG, "No data");
+			else Log.d(LOG_TAG, "Cropped Picture Not received");
 		}
 		return "";
 	}
@@ -83,17 +83,11 @@ public class ProcessImage
 		baseApi.setDebug(true);
 		baseApi.init(DATA_PATH, lang);
 		baseApi.setImage(croppedImage);
-		Log.i(LOG_TAG, baseApi.getInitLanguagesAsString());
 		String recognizedText = baseApi.getUTF8Text();
+		Log.d("Mean Confidence", String.valueOf(baseApi.meanConfidence()));
+		int meanConfidence = baseApi.meanConfidence();
 		baseApi.end();
-
-		// You now have the text in recognizedText var, you can do anything with it.
-		// We will display a stripped out trimmed alpha-numeric version of it (if lang is eng)
-		// so that garbage doesn't make it to the display.
-
-		Log.d(LOG_TAG, "OCRed TEXT: " + recognizedText);
 		recognizedText = recognizedText.trim();
-		Log.d(LOG_TAG, "After Trim: " + recognizedText);
-		return recognizedText;
+		return meanConfidence > ACCEPTABLE_CONFIDENCE_LEVEL ? recognizedText : "";
 	}
 }

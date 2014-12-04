@@ -158,7 +158,7 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 				}
 			}
 		} catch (WAException e) {
-			e.printStackTrace();
+			Log.d(LOG_TAG, e.getMessage());
 		}
 
 		return queryResultStr.toString();

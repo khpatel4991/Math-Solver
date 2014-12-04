@@ -2,8 +2,9 @@ package com.phone.kashyap.mathsolver;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,11 +14,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import eu.janmuller.android.simplecropimage.CropImage;
 
 /**
  * Created by Kashyap on 11/29/2014.
@@ -29,41 +35,26 @@ public class MainFragment extends Fragment
 	private static final int CROP_INTENT = 2;
 	private static final int CAMERA_INTENT = 1;
 	public static final int MEDIA_TYPE_IMAGE = 1;
-	private static final String CROP_ERROR = "Whoops - your device doesn't support the crop action!";
-	private Uri _outputFileUri;
-	private final ProcessImage _processImage = new ProcessImage(getActivity());
-
+	private File _imageFile;
+	private Uri _imageFileUri;
 	public MainFragment(){}
 
-	@Override
-	public void onAttach(Activity activity)
-	{
-		super.onAttach(activity);
-	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		handleShareIntent(getArguments());
+
 		View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 		Button buttonCamera = (Button) rootView.findViewById(R.id.button_camera);
 		Button buttonExisting = (Button) rootView.findViewById(R.id.button_existing);
-		Button buttonCrop = (Button) rootView.findViewById(R.id.button_crop);
-
 		buttonCamera.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view)
 			{
 				//Using Camera
-				Log.d(LOG_TAG, "camera button clicked");
-
-				File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-				_outputFileUri = Uri.fromFile(file);
-				final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
-				startActivityForResult(intent, CAMERA_INTENT);
-
-				//startActivity(new Intent(getActivity(), CameraActivity.class));
+				Log.d(LOG_TAG, "Camera Button Clicked");
+				takePicture();
 			}
 		});
 
@@ -72,22 +63,35 @@ public class MainFragment extends Fragment
 			public void onClick(View view)
 			{
 				//Using Gallery
-				Log.d(LOG_TAG, "existing Button Clicked");
-				Intent intent = new Intent(Intent.ACTION_PICK);
-				intent.setType("image/*");
-				startActivityForResult(intent, GET_CONTENT_INTENT);
+				Log.d(LOG_TAG, "Gallery Button Clicked");
+				openGallery();
 			}
 		});
-
-		buttonCrop.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view)
-			{
-				startActivity(new Intent(getActivity(), TestActivity.class));
-			}
-		});
+		_imageFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+		_imageFileUri = Uri.fromFile(_imageFile);
 
 		return rootView;
+	}
+
+	private void takePicture()
+	{
+		try
+		{
+			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, _imageFileUri);
+			intent.putExtra("return-data", true);
+			startActivityForResult(intent, CAMERA_INTENT);
+		} catch (ActivityNotFoundException e)
+		{
+			Log.d(LOG_TAG, "No Camera App installed in your phone!");
+		}
+	}
+
+	private void openGallery()
+	{
+		Intent intent = new Intent(Intent.ACTION_PICK);
+		intent.setType("image/*");
+		startActivityForResult(intent, GET_CONTENT_INTENT);
 	}
 
 
@@ -96,17 +100,12 @@ public class MainFragment extends Fragment
 	{
 		// To be safe, you should check that the SDCard is mounted
 		// using Environment.getExternalStorageState() before doing this.
-
 		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MathSolver");
-		// This location works best if you want the created images to be shared
-		// between applications and persist after your app has been uninstalled.
-
-		// Create the storage directory if it does not exist
 		if (!mediaStorageDir.exists())
 		{
 			if (!mediaStorageDir.mkdirs())
 			{
-				Log.d("MathSolver", "failed to create directory");
+				Log.d("MathSolver", "Failed to create directory");
 				return null;
 			}
 		}
@@ -126,12 +125,33 @@ public class MainFragment extends Fragment
 	{
 		if(args != null && args.containsKey("imageUri"))
 		{
-			Log.d(LOG_TAG, "Args not empty");
-			_outputFileUri = Uri.parse(args.getString("imageUri"));
+			Log.d(LOG_TAG, "Image Shared with MathSolver, now cropping");
+			_imageFileUri = Uri.parse(args.getString("imageUri"));
 			args.remove("imageUri");
-			Intent cropIntent = _processImage.getCropIntent(_outputFileUri);
-			if (cropIntent != null) startActivityForResult(cropIntent, CROP_INTENT);
-			else Toast.makeText(getActivity(), CROP_ERROR, Toast.LENGTH_SHORT).show();
+			startCropImage();
+		}
+	}
+
+	private void startCropImage()
+	{
+		Intent intent = new Intent(getActivity(), CropImage.class);
+		intent.putExtra(CropImage.IMAGE_PATH, _imageFile.getPath());
+		intent.putExtra(CropImage.SCALE, true);
+
+		intent.putExtra(CropImage.ASPECT_X, 3);
+		intent.putExtra(CropImage.ASPECT_Y, 1);
+
+		startActivityForResult(intent, CROP_INTENT);
+	}
+
+	private static void copyStream(InputStream input, OutputStream output) throws IOException
+	{
+
+		byte[] buffer = new byte[1024];
+		int bytesRead;
+		while ((bytesRead = input.read(buffer)) != -1)
+		{
+			output.write(buffer, 0, bytesRead);
 		}
 	}
 
@@ -139,13 +159,10 @@ public class MainFragment extends Fragment
 	{
 		if(requestCode == CAMERA_INTENT)
 		{
-			Log.d(LOG_TAG, "Camera IntentResult");
 			if (resultCode == Activity.RESULT_OK)
 			{
 				Log.d(LOG_TAG, "Picture taken, now cropping");
-				Intent cropIntent = _processImage.getCropIntent(_outputFileUri);
-				if (cropIntent != null) startActivityForResult(cropIntent, CROP_INTENT);
-				else Toast.makeText(getActivity(), CROP_ERROR, Toast.LENGTH_SHORT).show();
+				startCropImage();
 			}
 			else
 				Log.d(LOG_TAG, "User cancelled from cam");
@@ -153,27 +170,31 @@ public class MainFragment extends Fragment
 
 		if (requestCode == GET_CONTENT_INTENT)
 		{
-			Log.d(LOG_TAG, "after crop, activity result");
-			if(data != null)
+			if(resultCode == Activity.RESULT_OK)
 			{
+				Log.d(LOG_TAG, "Picture Got from Gallery, now cropping");
 				try
 				{
-					_outputFileUri = data.getData();
-					Intent cropIntent = _processImage.getCropIntent(_outputFileUri);
-					if (cropIntent != null) startActivityForResult(cropIntent, CROP_INTENT);
-					else Toast.makeText(getActivity(), CROP_ERROR, Toast.LENGTH_SHORT).show();
-				} catch (Exception e)
+					InputStream inputStream = getActivity().getContentResolver().openInputStream(data.getData());
+					FileOutputStream fileOutputStream = new FileOutputStream(_imageFile);
+					copyStream(inputStream, fileOutputStream);
+					fileOutputStream.close();
+					inputStream.close();
+					startCropImage();
+				} catch (IOException e)
 				{
-					e.printStackTrace();
+					Log.d(LOG_TAG, "Can't create temp file, so can't crop");
 				}
 			}
 		}
+
 		if (requestCode == CROP_INTENT)
 		{
-			Log.d(LOG_TAG, "onActivityResult, Result Code = " + String.valueOf(resultCode));
-			if(data != null)
-				new GetTextFromImageTask(getActivity()).execute((Bitmap) data.getExtras().getParcelable("data"));
+			Log.d(LOG_TAG, "Image Cropped, Now Processing to get Equation");
+			String path = data.getStringExtra(CropImage.IMAGE_PATH);
+			if (path == null)
+				return;
+			new GetTextFromImageTask(getActivity()).execute(BitmapFactory.decodeFile(_imageFile.getPath()));
 		}
 	}
-
 }

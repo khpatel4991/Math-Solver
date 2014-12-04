@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by Kashyap on 11/30/2014.
@@ -51,9 +52,11 @@ public class GetTextFromImageTask extends AsyncTask<Bitmap, Void, String>
 	protected void onPostExecute(String s)
 	{
 		super.onPostExecute(s);
-
 		if(_progressDialog != null)
 			_progressDialog.dismiss();
-		_startSolverFragment.startSolverFragmentMethod(s);
+		Log.d(LOG_TAG, s);
+		if(!s.equals(""))
+			_startSolverFragment.startSolverFragmentMethod(s);
+		else Toast.makeText(_activity, "Can't determine the text from image, TRY AGAIN", Toast.LENGTH_LONG).show();
 	}
 }
