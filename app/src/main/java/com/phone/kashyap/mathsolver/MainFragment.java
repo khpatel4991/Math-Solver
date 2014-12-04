@@ -206,7 +206,7 @@ public class MainFragment extends Fragment
 			{
 				Log.d(LOG_TAG, "Picture Got from Gallery, now cropping");
 				copyAndCrop(data.getData());
-			}
+			} else Log.d(LOG_TAG, "User cancelled from gallery");
 		}
 
 		if (requestCode == CROP_INTENT)
