@@ -5,6 +5,8 @@ import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,6 +37,8 @@ public class MainFragment extends Fragment
 	private static final int CROP_INTENT = 2;
 	private static final int CAMERA_INTENT = 1;
 	public static final int MEDIA_TYPE_IMAGE = 1;
+	public static final String MY_DIRECTORY = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/MathSolver/";
+	//"file:///storage/emulated/0/Pictures/MathSolver/"
 	private File _imageFile;
 	private Uri _imageFileUri;
 	public MainFragment(){}
@@ -100,7 +104,7 @@ public class MainFragment extends Fragment
 	{
 		// To be safe, you should check that the SDCard is mounted
 		// using Environment.getExternalStorageState() before doing this.
-		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MathSolver");
+		File mediaStorageDir = new File(MY_DIRECTORY);
 		if (!mediaStorageDir.exists())
 		{
 			if (!mediaStorageDir.mkdirs())
@@ -126,9 +130,8 @@ public class MainFragment extends Fragment
 		if(args != null && args.containsKey("imageUri"))
 		{
 			Log.d(LOG_TAG, "Image Shared with MathSolver, now cropping");
-			_imageFileUri = Uri.parse(args.getString("imageUri"));
+			copyAndCrop(Uri.parse(args.getString("imageUri")));
 			args.remove("imageUri");
-			startCropImage();
 		}
 	}
 
@@ -142,6 +145,35 @@ public class MainFragment extends Fragment
 		intent.putExtra(CropImage.ASPECT_Y, 1);
 
 		startActivityForResult(intent, CROP_INTENT);
+	}
+
+	private void copyAndCrop(Uri uri)
+	{
+		if (!uri.getPath().startsWith(MY_DIRECTORY))
+		{
+			Log.d(LOG_TAG, "Not from MathSolver Directory");
+			_imageFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+			_imageFileUri = uri;
+		} else
+		{
+			Log.d(LOG_TAG, "From MathSolver Directory, Cropped Image will be over-written");
+			_imageFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+			_imageFileUri = uri;
+		}
+		try
+		{
+			InputStream inputStream = getActivity().getContentResolver().openInputStream(_imageFileUri);
+			FileOutputStream fileOutputStream = new FileOutputStream(_imageFile);
+			copyStream(inputStream, fileOutputStream);
+			fileOutputStream.close();
+			inputStream.close();
+
+			startCropImage();
+		} catch (IOException e)
+		{
+			Log.e(LOG_TAG, e.getMessage());
+			Log.d(LOG_TAG, "Can't create temp file, so can't crop");
+		}
 	}
 
 	private static void copyStream(InputStream input, OutputStream output) throws IOException
@@ -173,28 +205,27 @@ public class MainFragment extends Fragment
 			if(resultCode == Activity.RESULT_OK)
 			{
 				Log.d(LOG_TAG, "Picture Got from Gallery, now cropping");
-				try
-				{
-					InputStream inputStream = getActivity().getContentResolver().openInputStream(data.getData());
-					FileOutputStream fileOutputStream = new FileOutputStream(_imageFile);
-					copyStream(inputStream, fileOutputStream);
-					fileOutputStream.close();
-					inputStream.close();
-					startCropImage();
-				} catch (IOException e)
-				{
-					Log.d(LOG_TAG, "Can't create temp file, so can't crop");
-				}
+				copyAndCrop(data.getData());
 			}
 		}
 
 		if (requestCode == CROP_INTENT)
 		{
-			Log.d(LOG_TAG, "Image Cropped, Now Processing to get Equation");
-			String path = data.getStringExtra(CropImage.IMAGE_PATH);
-			if (path == null)
-				return;
-			new GetTextFromImageTask(getActivity()).execute(BitmapFactory.decodeFile(_imageFile.getPath()));
+			if (data != null)
+			{
+				Log.d(LOG_TAG, "Image Cropped, Now Processing to get Equation");
+				String path = data.getStringExtra(CropImage.IMAGE_PATH);
+				if (path == null) return;
+				MediaScannerConnection.scanFile(getActivity(), new String[]{_imageFile.getAbsolutePath()}, null, new MediaScannerConnectionClient()
+				{
+					@Override
+					public void onMediaScannerConnected() {}
+
+					@Override
+					public void onScanCompleted(String s, Uri uri) {}
+				});
+				new GetTextFromImageTask(getActivity()).execute(BitmapFactory.decodeFile(_imageFile.getPath()));
+			}
 		}
 	}
 }

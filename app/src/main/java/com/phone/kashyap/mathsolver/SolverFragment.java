@@ -106,9 +106,9 @@ public class SolverFragment extends Fragment
 				boolean flag = checkInternet();
 				if (flag)
 				{
+					_tableResultLayout.removeAllViews();
 					if (equ != null && equ.length() > 0)
 					{
-						_tableResultLayout.removeAllViews();
 						_solverTask = new SolverTask(_activity);
 						_equation.setEnabled(false);
 						_calcButton.setEnabled(false);

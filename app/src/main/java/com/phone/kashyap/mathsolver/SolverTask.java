@@ -24,6 +24,7 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 {
 	private static final String LOG_TAG = SolverTask.class.getSimpleName();
 	private static String appid = "VYQ8QE-Y7AEURHGHE";
+	private static int _publishProgress = 0;
 	private static HashSet<String> podTitleStr = new HashSet<String>();
 
 	private Activity _activity;
@@ -151,6 +152,7 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 									}
 								}
 							}
+							_publishProgress++;
 							publishProgress(resultMap);
 							queryResultStr.append("\n");
 						}
@@ -160,7 +162,8 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 		} catch (WAException e) {
 			Log.d(LOG_TAG, e.getMessage());
 		}
-
+		Log.d(LOG_TAG, String.valueOf(_publishProgress));
+		if (_publishProgress == 0) Log.d(LOG_TAG, "NO RESULTS");
 		return queryResultStr.toString();
 	}
 
