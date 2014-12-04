@@ -197,7 +197,7 @@ public class MainFragment extends Fragment
 				startCropImage();
 			}
 			else
-				Log.d(LOG_TAG, "User cancelled from cam");
+				Log.d(LOG_TAG, "User cancelled from camera");
 		}
 
 		if (requestCode == GET_CONTENT_INTENT)
