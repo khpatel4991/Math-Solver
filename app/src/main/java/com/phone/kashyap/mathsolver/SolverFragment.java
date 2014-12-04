@@ -172,13 +172,16 @@ public class SolverFragment extends Fragment
 		expressionString = expressionString.replaceAll("@", "0");
 		expressionString = expressionString.replaceAll("\"", "^");
 		expressionString = expressionString.replaceAll("Q", "9");
+		expressionString = expressionString.replaceAll("\u20ac", "6");
+		expressionString = expressionString.replaceAll("['\\\\]", "^");
+		//expressionString = expressionString.replace("'", "");
 		return expressionString;
 	}
 
 	public String validateExpression(String equation)
 	{
 		Tokenizer tokenizer = new Tokenizer();
-		tokenizer.add("sin|cos|exp|ln|sqrt|pow|acos|asin|atan|sec|cosec|cot|sinh|cosh|tanh|asinh|acosh|atanh|log", 1);
+		tokenizer.add("sin|cos|exp|ln|sqrt|pow|acos|asin|atan|sec|cosec|cot|sinh|cosh|tanh|asinh|acosh|atanh|log|log10|log2", 1);
 		tokenizer.add("\\(", 2);
 		tokenizer.add("\\)", 3);
 		tokenizer.add("\\+|-", 4);
