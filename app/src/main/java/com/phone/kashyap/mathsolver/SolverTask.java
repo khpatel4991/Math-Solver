@@ -151,9 +151,9 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 										}
 									}
 								}
+								publishProgress((HashMap)resultMap.clone());
 							}
 							_publishProgress++;
-							publishProgress(resultMap);
 							queryResultStr.append("\n");
 						}
 					}

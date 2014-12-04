@@ -21,7 +21,13 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.phone.kashyap.validator.Parser;
+import com.phone.kashyap.validator.ParserException;
+import com.phone.kashyap.validator.Token;
+import com.phone.kashyap.validator.Tokenizer;
+
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import static android.view.View.OnClickListener;
 
@@ -78,7 +84,9 @@ public class SolverFragment extends Fragment
 
 		Bundle solverBundle = this.getArguments();
 		_expression = solverBundle.getString("equation", "0");
-
+		Log.d(LOG_TAG, "Old: " + _expression);
+		_expression = verifyExpression(_expression);
+		Log.d(LOG_TAG, "New: " + _expression);
 		_equation.setText(_expression);
 
 		_equation.addTextChangedListener(new TextWatcher()
@@ -99,7 +107,6 @@ public class SolverFragment extends Fragment
 		_calcButton = (Button) getActivity().findViewById(R.id.button2);
 		_calcButton.setOnClickListener(new OnClickListener()
 		{
-			@Override
 			public void onClick(View v)
 			{
 				String equ = _equation.getText().toString();
@@ -112,9 +119,21 @@ public class SolverFragment extends Fragment
 						_solverTask = new SolverTask(_activity);
 						_equation.setEnabled(false);
 						_calcButton.setEnabled(false);
-						_solverTask.execute(equ);
+						String errorMsg = null;
+						errorMsg = validateExpression(equ);
+						if (errorMsg == null)
+						{
+							_solverTask.execute(equ);
+						} else
+						{
+							addTitleToTable(errorMsg);
+							_equation.setEnabled(true);
+						}
+					} else
+					{
+						addTitleToTable("No Equation Found !");
+						_equation.setEnabled(true);
 					}
-					else addTitleToTable("No Equation Found !");
 				}
 			}
 		});
@@ -145,6 +164,65 @@ public class SolverFragment extends Fragment
 		}
 	}
 
+	public String verifyExpression(String expressionString)
+	{
+		expressionString = expressionString.replaceAll("A", "^");
+		expressionString = expressionString.replaceAll("D", "p");
+		expressionString = expressionString.replaceAll("B", "8");
+		expressionString = expressionString.replaceAll("@", "0");
+		expressionString = expressionString.replaceAll("\"", "^");
+		expressionString = expressionString.replaceAll("Q", "9");
+		return expressionString;
+	}
+
+	public String validateExpression(String equation)
+	{
+		Tokenizer tokenizer = new Tokenizer();
+		tokenizer.add("sin|cos|exp|ln|sqrt|pow|acos|asin|atan|sec|cosec|cot|sinh|cosh|tanh|asinh|acosh|atanh|log", 1);
+		tokenizer.add("\\(", 2);
+		tokenizer.add("\\)", 3);
+		tokenizer.add("\\+|-", 4);
+		tokenizer.add("\\*|/", 5);
+		tokenizer.add("[0-9]+|pi", 6);
+		tokenizer.add("[a-z][a-z0-9]*", 7);
+		tokenizer.add("\\=", 9);
+		tokenizer.add("\\^", 8);
+
+		try
+		{
+			tokenizer.tokenize(equation);
+			Parser parser = new Parser();
+			LinkedList<Token> token1;
+			token1 = tokenizer.getTokens();
+			if (tokenizer.flag)
+			{
+				if (tokenizer.variables.size() > 1)
+				{
+					throw new ParserException("More than one variable present. Only one variable expected!");
+				} else if (tokenizer.variables.size() < 1)
+				{
+					throw new ParserException("One variable expected!");
+				} else
+				{
+					parser.parse(token1);
+				}
+			} else
+			{
+				if (tokenizer.variables.size() > 0)
+				{
+					throw new ParserException("Unexpected occurrence of variable(s)!");
+				} else
+				{
+					parser.parse(token1);
+				}
+			}
+		} catch (ParserException e)
+		{
+			return e.getMessage();
+		}
+		return null;
+	}
+
 	public void populatingTextView(HashMap<String, String> values)
 	{
 
@@ -162,8 +240,7 @@ public class SolverFragment extends Fragment
 					addSubTitleToTable(values.get(subTitle));
 				}
 				addParaToTable(values.get(para));
-			}
-			else
+			} else
 			{
 				addTitleToTable(values.get(title));
 				if (values.containsKey(subTitle))
@@ -172,6 +249,7 @@ public class SolverFragment extends Fragment
 					addSubTitleToTable(values.get(subTitle));
 				}
 				addParaToTable(values.get(para));
+				oldTitle = values.get(title);
 			}
 		}
 	}

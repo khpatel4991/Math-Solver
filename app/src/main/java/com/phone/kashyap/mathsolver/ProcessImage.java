@@ -23,7 +23,7 @@ public class ProcessImage
 
 	private static final String lang = "eng";
 	private static final int CROP_INTENT = 2;
-	private static final int ACCEPTABLE_CONFIDENCE_LEVEL = 71;
+	private static final int ACCEPTABLE_CONFIDENCE_LEVEL = 68;
 	private Bitmap _croppedImage;
 
 	public ProcessImage(Context context)
