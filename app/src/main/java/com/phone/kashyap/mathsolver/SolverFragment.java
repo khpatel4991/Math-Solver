@@ -151,11 +151,13 @@ public class SolverFragment extends Fragment
 		{
 			public void onClick(View v)
 			{
-				if (_txtFileString != null && _txtFileString.length()>0){
+				if (_txtFileString != null && _txtFileString.length() > 0)
+				{
 					_makeTxtTask = new MakeTxt(_activity);
 					_makeTxtTask.execute(_txtFileString);
 					_downloadButton.setEnabled(false);
-				}else{
+				} else
+				{
 					Toast.makeText(getActivity(), "No Solution Available to download!", Toast.LENGTH_LONG).show();
 				}
 			}
@@ -172,7 +174,6 @@ public class SolverFragment extends Fragment
 			_downloadButton.setEnabled(false);
 		}
 	}
-
 
 
 	public boolean checkInternet()
@@ -228,38 +229,55 @@ public class SolverFragment extends Fragment
 			Parser parser = new Parser();
 			LinkedList<Token> token1;
 			token1 = tokenizer.getTokens();
-			if(tokenizer.flag){
-				if(tokenizer.variables.size()>1){
-					if(tokenizer.variables.contains("pi")){
-						if((tokenizer.variables.size()-1)>1){
+			if (tokenizer.flag)
+			{
+				if (tokenizer.variables.size() > 1)
+				{
+					if (tokenizer.variables.contains("pi"))
+					{
+						if ((tokenizer.variables.size() - 1) > 1)
+						{
 							throw new ParserException("More than one variable present. Only one variable expected!");
-						}else{
+						} else
+						{
 							parser.parse(token1);
 						}
-					} else{
+					} else
+					{
 						throw new ParserException("More than one variable present. Only one variable expected!");
 					}
-				}else if(tokenizer.variables.size()<1){
+				} else if (tokenizer.variables.size() < 1)
+				{
 					throw new ParserException("One variable expected!");
-				}else{
-					if(tokenizer.variables.contains("pi")){
+				} else
+				{
+					if (tokenizer.variables.contains("pi"))
+					{
 						throw new ParserException("One variable expected!");
-					}else {
+					} else
+					{
 						parser.parse(token1);
 					}
 				}
-			}else{
-				if(tokenizer.variables.size()>0){
-					if(tokenizer.variables.contains("pi")){
-						if((tokenizer.variables.size()-1)>0){
+			} else
+			{
+				if (tokenizer.variables.size() > 0)
+				{
+					if (tokenizer.variables.contains("pi"))
+					{
+						if ((tokenizer.variables.size() - 1) > 0)
+						{
 							throw new ParserException("Unexpected occurrence of variable(s)!");
-						} else {
+						} else
+						{
 							parser.parse(token1);
 						}
-					}else {
+					} else
+					{
 						throw new ParserException("Unexpected occurrence of variable(s)!");
 					}
-				}else{
+				} else
+				{
 					parser.parse(token1);
 				}
 			}
@@ -280,9 +298,10 @@ public class SolverFragment extends Fragment
 		_equation.setEnabled(true);
 		if (values != null)
 		{
-			if(values.containsKey(error)){
+			if (values.containsKey(error))
+			{
 				addTitleToTable(values.get(error));
-			}else
+			} else
 			{
 				if (oldTitle.equals(values.get(title)))
 				{
@@ -358,18 +377,21 @@ public class SolverFragment extends Fragment
 	public void afterReturnFromAsyncTask(String result)
 	{
 		_equation.setEnabled(true);
-		if(_tableResultLayout.getChildCount() <= 1 && result.length() == 0){
+		if (_tableResultLayout.getChildCount() <= 1 && result.length() == 0)
+		{
 			//addTitleToTable("Invalid Equation!");
 			_downloadButton.setEnabled(false);
-		}else{
+		} else
+		{
 			_txtFileString = result;
 			_downloadButton.setEnabled(true);
 		}
 	}
 
-	public void afterSavingFile(){
+	public void afterSavingFile()
+	{
 		_downloadButton.setEnabled(true);
-		Toast.makeText(_activity,"Download Completed!",Toast.LENGTH_LONG).show();
+		Toast.makeText(_activity, "Download Completed!", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
