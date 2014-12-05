@@ -228,25 +228,38 @@ public class SolverFragment extends Fragment
 			Parser parser = new Parser();
 			LinkedList<Token> token1;
 			token1 = tokenizer.getTokens();
-			if (tokenizer.flag)
-			{
-				if (tokenizer.variables.size() > 1)
-				{
-					throw new ParserException("More than one variable present. Only one variable expected!");
-				} else if (tokenizer.variables.size() < 1)
-				{
+			if(tokenizer.flag){
+				if(tokenizer.variables.size()>1){
+					if(tokenizer.variables.contains("pi")){
+						if((tokenizer.variables.size()-1)>1){
+							throw new ParserException("More than one variable present. Only one variable expected!");
+						}else{
+							parser.parse(token1);
+						}
+					} else{
+						throw new ParserException("More than one variable present. Only one variable expected!");
+					}
+				}else if(tokenizer.variables.size()<1){
 					throw new ParserException("One variable expected!");
-				} else
-				{
-					parser.parse(token1);
+				}else{
+					if(tokenizer.variables.contains("pi")){
+						throw new ParserException("One variable expected!");
+					}else {
+						parser.parse(token1);
+					}
 				}
-			} else
-			{
-				if (tokenizer.variables.size() > 0)
-				{
-					throw new ParserException("Unexpected occurrence of variable(s)!");
-				} else
-				{
+			}else{
+				if(tokenizer.variables.size()>0){
+					if(tokenizer.variables.contains("pi")){
+						if((tokenizer.variables.size()-1)>0){
+							throw new ParserException("Unexpected occurrence of variable(s)!");
+						} else {
+							parser.parse(token1);
+						}
+					}else {
+						throw new ParserException("Unexpected occurrence of variable(s)!");
+					}
+				}else{
 					parser.parse(token1);
 				}
 			}
