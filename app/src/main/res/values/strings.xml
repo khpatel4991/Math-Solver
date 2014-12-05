@@ -8,10 +8,17 @@
     <string name="hello_world">Hello world!</string>
     <string name="retake">Re-Take</string>
     <string name="title_activity_start">StartActivity</string>
-    <string name="description">Welcome to our app. Take an image of an equation, get its detailed solution</string>
+    <string name="description">Welcome to MathSolver! Take an image of an equation, get its detailed solution</string>
     <string name="use_camera">Use Camera</string>
     <string name="use_existing">Use Existing Picture</string>
     <string name="equ_text">Equation you want to calculate</string>
     <string name="calc_button">Calculate</string>
+    <string name="download_button">Download Solution</string>
+    <string name="label_tips">Some Tips</string>
+    <string name="tip1">Use High Exposure if you can.\n</string>
+    <string name="tip2">If taking image from a monitor, see that monitor interference is not much.\n</string>
+    <string name="tip3">You can crop the image in a rectangular block so take the picture appropriately.\n</string>
+    <string name="tip4">Be patient with the OCR engine.\n</string>
+
 
 </resources>

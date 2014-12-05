@@ -15,27 +15,42 @@
         android:layout_height="wrap_content"
         android:id="@+id/equEditText"
         android:hint="@string/equ_text"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:textColor="#ffd32f2f"
+        android:textAlignment="center"
+        android:singleLine="false"
+        android:textIsSelectable="false"/>
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="170dp"
+        android:layout_height="65dp"
         android:text="@string/calc_button"
         android:id="@+id/button2"
         android:layout_marginTop="20dp"
         android:layout_below="@+id/equEditText"
-        android:layout_centerHorizontal="true" />
+        android:layout_toLeftOf="@+id/button3"
+        android:layout_toStartOf="@+id/button3"
+        android:layout_alignLeft="@+id/scroll_result_layout"/>
+    <Button
+        android:layout_width="170dp"
+        android:layout_height="65dp"
+        android:text="@string/download_button"
+        android:id="@+id/button3"
+        android:enabled="false"
+        android:layout_alignTop="@+id/button2"
+        android:layout_alignRight="@+id/scroll_result_layout"
+        android:layout_alignEnd="@+id/scroll_result_layout"/>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/button2"
-        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/button3"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="20dp"
-        android:id="@+id/scroll_result_layout">
+        android:id="@+id/scroll_result_layout"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
            <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">

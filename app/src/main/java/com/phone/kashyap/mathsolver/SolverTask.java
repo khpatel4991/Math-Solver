@@ -63,7 +63,8 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 	protected String doInBackground(String... params)
 	{
 		StringBuilder queryResultStr = new StringBuilder("");
-		String[] podTitleArray = {"Input", "Exact result", "Results", "Result", "Solutions", "Decimal approximation"};
+
+		String[] podTitleArray = {"Input", "Exact result", "Results", "Result", "Solutions", "Complex solutions", "Real solution", "Real solutions", "Decimal approximation"};
 
 		podTitleStr.addAll(Arrays.asList(podTitleArray));
 
@@ -75,6 +76,10 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 		engine.addFormat("plaintext");
 		engine.addPodState("Solution__Step-by-step solution");
 		engine.addPodState("Result__Step-by-step solution");
+		engine.addPodState("Solution__Approximate forms");
+		engine.addPodState("ComplexSolution__Step-by-step solution");
+		engine.addPodState("ComplexSolution__Approximate forms");
+		engine.addPodState("RealSolution__Step-by-step solution");
 		engine.addPodState("Solution__Approximate form"); // For single variable equation it gives decimal result
 
 		// Create the query.
@@ -87,9 +92,15 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 			WAQueryResult queryResult = engine.performQuery(query);
 
 			if (queryResult.isError()) {
-				queryResultStr.append("Query error\n\terror code: " + queryResult.getErrorCode()+"\n\terror message: " + queryResult.getErrorMessage());
+				HashMap<String, String> hM = new HashMap<>();
+				hM.put("ERROR", "Query error\n\terror code: " + queryResult.getErrorCode()+"\n\terror message: " + queryResult.getErrorMessage());
+				publishProgress(hM);
+				//queryResultStr.append("Query error\n\terror code: " + queryResult.getErrorCode()+"\n\terror message: " + queryResult.getErrorMessage());
 			} else if (!queryResult.isSuccess()) {
-				queryResultStr.append("Query was not understood; no results available.");
+				HashMap<String, String> hM = new HashMap<>();
+				hM.put("ERROR", "Query was not understood; no results available.");
+				publishProgress(hM);
+				//queryResultStr.append("Query was not understood; no results available.");
 			} else {
 				final String title = "TITLE";
 				final String subTitle = "SUBTITLE";
@@ -193,7 +204,7 @@ public class SolverTask extends AsyncTask<String, HashMap<String, String>, Strin
 		{
 			if (_progressDialog != null) _progressDialog.dismiss();
 
-			((MainActivity) _activity)._solverFrag.afterReturnFromAsyncTask();
+			((MainActivity) _activity)._solverFrag.afterReturnFromAsyncTask(result);
 		}
 	}
 }

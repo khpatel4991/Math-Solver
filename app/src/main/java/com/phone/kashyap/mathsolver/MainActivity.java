@@ -40,7 +40,6 @@ public class MainActivity extends Activity implements StartSolverFragment
 			Bundle args = new Bundle();
 			args.putString("imageUri", this.getIntent().getExtras().getString("imageUri"));
 			mainFragment.setArguments(args);
-			//getFragmentManager().beginTransaction().add(R.id.container, mainFragment).commit();
 		}
 		if(savedInstanceState == null)
 			getFragmentManager().beginTransaction().add(R.id.container, mainFragment).commit();

@@ -37,7 +37,9 @@ public class MainFragment extends Fragment
 	private static final int CROP_INTENT = 2;
 	private static final int CAMERA_INTENT = 1;
 	public static final int MEDIA_TYPE_IMAGE = 1;
-	public static final String MY_DIRECTORY = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/MathSolver/";
+	public static final	int MEDIA_TYPE_TEXT = 2;
+	public static final String PICTURE_DIRECTORY = Environment.getExternalStorageDirectory() + "/MathSolver/Pictures/";
+	public static final String SOLUTION_DIRECTORY = Environment.getExternalStorageDirectory() + "/MathSolver/Solutions/";
 	//"file:///storage/emulated/0/Pictures/MathSolver/"
 	private File _imageFile;
 	private Uri _imageFileUri;
@@ -104,7 +106,7 @@ public class MainFragment extends Fragment
 	{
 		// To be safe, you should check that the SDCard is mounted
 		// using Environment.getExternalStorageState() before doing this.
-		File mediaStorageDir = new File(MY_DIRECTORY);
+		File mediaStorageDir = new File(PICTURE_DIRECTORY);
 		if (!mediaStorageDir.exists())
 		{
 			if (!mediaStorageDir.mkdirs())
@@ -122,6 +124,31 @@ public class MainFragment extends Fragment
 		else return null;
 
 		return mediaFile;
+	}
+
+	/* Create a File for saving an image or video */
+	public static File getOutputTextFile(int type)
+	{
+		// To be safe, you should check that the SDCard is mounted
+		// using Environment.getExternalStorageState() before doing this.
+		File mediaStorageDir = new File(SOLUTION_DIRECTORY);
+		if (!mediaStorageDir.exists())
+		{
+			if (!mediaStorageDir.mkdirs())
+			{
+				Log.d("MathSolver", "Failed to create directory");
+				return null;
+			}
+		}
+
+		// Create a media file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+		File textFile;
+		if (type == MEDIA_TYPE_TEXT)
+			textFile = new File(mediaStorageDir.getPath() + File.separator + "SOLUTION_" + timeStamp + ".txt");
+		else return null;
+
+		return textFile;
 	}
 
 
@@ -149,7 +176,7 @@ public class MainFragment extends Fragment
 
 	private void copyAndCrop(Uri uri)
 	{
-		if (!uri.getPath().startsWith(MY_DIRECTORY))
+		if (!uri.getPath().startsWith(PICTURE_DIRECTORY))
 		{
 			Log.d(LOG_TAG, "Not from MathSolver Directory");
 			_imageFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
